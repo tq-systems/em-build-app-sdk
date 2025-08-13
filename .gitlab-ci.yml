@@ -32,3 +32,8 @@ Build Documentaion:
     - .gitlab-runner-linux
     - .image-doc
   script: make docs
+
+Test full build:
+  stage: test
+  script:
+    - make test-complete
