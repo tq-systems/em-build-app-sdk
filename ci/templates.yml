@@ -1,0 +1,7 @@
+.staging-build:
+  stage: build
+  variables:
+    GIT_CLEAN_FLAGS: -ffd
+    GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH"
+  tags:
+    - tq-em-staging-shell

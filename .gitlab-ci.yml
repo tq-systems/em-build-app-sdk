@@ -2,23 +2,8 @@
 include:
 - project: tq-em/build/docker/toolchain-ci
   file: common/include.yml
-  ref: v7.0.3_tc7.2.1
-  rules:
-    - if: '$CI_COMMIT_TAG'
-    - if: '$CI_COMMIT_BRANCH =~ /^release/'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^release/'
-
-- project: tq-em/build/docker/toolchain-ci
-  file: common/include.yml
   ref: master
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      when: never
-    - if: '$CI_COMMIT_BRANCH =~ /^release/'
-      when: never
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^release/'
-      when: never
-    - when: always
+- local: ci/templates.yml
 
 stages:
 - build
@@ -33,7 +18,10 @@ Build Documentaion:
     - .image-doc
   script: make docs
 
-Test full build:
-  stage: test
+Build All (staging):
+  extends: .staging-build
+  variables:
+    MAKE_TARGET: "all"
+    LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/deploy"
   script:
-    - make test-complete
+    - make ${MAKE_TARGET} TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}"
