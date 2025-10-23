@@ -1,3 +1,6 @@
+# pylint: disable=C0103,C0114,W0622
+# This is a automatically created file, some pylint issues are ignored.
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
