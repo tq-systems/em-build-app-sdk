@@ -10,6 +10,7 @@ stages:
 - test
 - deploy
 
+# Builds
 Build Documentaion:
   stage: build
   extends:
@@ -25,3 +26,17 @@ Build All (staging):
     LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/deploy"
   script:
     - make ${MAKE_TARGET} TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}"
+
+# Tests
+Shell Linter:
+  extends:
+    - .lint-shell
+    - .rule-include-development-branches
+
+Python Linter:
+  extends:
+    - .lint-python
+    - .rule-include-development-branches
+
+Gitleaks:
+  extends: .gitleaks

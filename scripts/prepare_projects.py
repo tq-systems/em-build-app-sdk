@@ -9,10 +9,14 @@
 #
 # Author: Christoph Krutz
 
+''' This script downloads the needed projects. '''
+
 import os
 import subprocess
+# pylint: disable=E0401
+# TBD: Remove this pylint-disable if the missing module is installed in the test image
 import yaml
-
+# pylint: enable=E0401
 
 CONFIG = "projects.yaml"
 BUILD_DIR = "build"
