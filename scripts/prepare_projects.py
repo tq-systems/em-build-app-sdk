@@ -9,8 +9,9 @@
 #
 # Author: Christoph Krutz
 
-''' This script downloads the needed projects. '''
+''' Handle the projects.yml file. '''
 
+import argparse
 import os
 import subprocess
 # pylint: disable=E0401
@@ -27,29 +28,31 @@ def run(cmd):
     ''' Run a command and check the return value '''
     subprocess.run(cmd, shell=True, check=True)
 
-def update_git_repo(project):
+def update_git_repo(name, info):
     ''' Update a git repository '''
 
-    name = project.get("name")
     if not name:
         raise ValueError("Project name is required")
+    print(f"Updating {name} project...")
+
     project_path = os.path.join(BUILD_DIR, name)
 
-    url = project.get("url")
+    url = info.get("url")
     if not url:
         raise ValueError("Project URL is required")
 
-    branch = project.get("branch")
+    branch = info.get("branch")
     if not branch:
         raise ValueError("Project branch is required")
 
-    reference = project.get("reference")
+    reference = info.get("reference")
 
     if not os.path.isdir(project_path):
         run([f"git clone {url} {project_path}"])
     else:
         # Always update origin URL on existing repositories as it may be overwritten locally
-        run([f"git -C {project_path} remote set-url origin {url}"])
+        run([f"git -C {project_path} remote set-url origin {url} || \
+               git -C {project_path} remote add origin {url}"])
 
     run([f"git -C {project_path} fetch --tags --prune origin"])
 
@@ -70,11 +73,28 @@ if os.path.isfile(LOCAL_CONFIG):
     with open(LOCAL_CONFIG, mode="r", encoding="utf-8") as f:
         config_data = yaml.safe_load(f)
 
-os.makedirs(BUILD_DIR, exist_ok=True)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Process the projects.yml file.")
+    parser.add_argument("-u", "--core-url", action="store_true",
+                        help="Print git URL of the core (em-build).")
+    parser.add_argument("-r", "--core-ref", action="store_true",
+                        help="Print git reference of the core (em-build).")
+    args = parser.parse_args()
 
-# Fetch or update the projects
-for git_repo in config_data.get("toolchain", []):
-    update_git_repo(git_repo)
+    if args.core_url is True:
+        get_url = config_data.get("projects", {}).get("yocto/em-build", {}).get("url", "")
+        print(get_url)
 
-for git_repo in config_data.get("demo", []):
-    update_git_repo(git_repo)
+    elif args.core_ref is True:
+        get_reference = config_data.get("projects").get("yocto/em-build").get("reference")
+        if get_reference is not None:
+            print(get_reference)
+        else:
+            get_branch = config_data.get("projects").get("yocto/em-build").get("branch")
+            print(get_branch)
+
+    else:
+        os.makedirs(BUILD_DIR, exist_ok=True)
+
+        for project_name, project_info in config_data["projects"].items():
+            update_git_repo(project_name, project_info)
