@@ -18,6 +18,12 @@ For all participating projects there are the following code conventions:
 
     The automated tests represent realistic scenarios and thus increase project maintainability.
 
+#. Detailed documentation in the projects
+
+    In addition to the documentation here, further documentation will be available in `README.md`
+    files within the respective projects. Each subfolder also contains a `README.md` to make it
+    easier to get started with the projects.
+
 #. Naming variables
 
     Variables have meaningful names and are formulated in a consistent and descriptive manner, e.g.
@@ -50,9 +56,3 @@ For all participating projects there are the following code conventions:
 
     Credentials or secrets are not stored in the codebase. Instead, they are provided through
     environment variables or configuration files that are not included in the codebase.
-
-#. Detailed documentation in the projects
-
-    In addition to the documentation here, further documentation will be available in `README.md`
-    files within the respective projects. Each subfolder also contains a `README.md` to make it
-    easier to get started with the projects.

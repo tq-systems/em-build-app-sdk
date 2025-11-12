@@ -1,0 +1,26 @@
+/* TQ colors for sidebar header (and topbar for mobile) */
+.wy-side-nav-search, .wy-nav-top {
+	background: #00a7e5 !important;
+}
+
+div.version {
+	color: #ffffff !important;
+}
+
+/* Allow wrapping long monospace texts */
+code.literal {
+	white-space: normal !important;
+}
+
+/* override table width restrictions */
+@media screen and (min-width: 767px) {
+	.wy-table-responsive table th, .wy-table-responsive table td {
+	/* !important prevents the common CSS stylesheets from overriding
+	this as on RTD they are loaded after this stylesheet */
+		white-space: normal !important;
+	}
+
+	.wy-table-responsive {
+		overflow: visible !important;
+	}
+}
