@@ -28,6 +28,7 @@ TQEM_BUILD_TOOLCHAIN_DIR ?= ${TQEM_BUILD_DIR}/toolchain
 TQEM_BUILD_APPS_DIR      ?= ${TQEM_BUILD_DIR}/apps
 TQEM_BUILD_BUNDLES_DIR   ?= ${TQEM_BUILD_DIR}/bundles
 
+PREPARE_SCRIPT = ./scripts/prepare_projects.py
 
 # Artifacts directories
 TQEM_ARTIFACTS_DIR ?= artifacts

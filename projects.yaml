@@ -1,21 +1,24 @@
-toolchain:
-  - name: base
+projects:
+  base:
     url: https://github.com/tq-systems/em-build-base
     branch: main
 
-  - name: yocto
+  yocto:
     url: https://github.com/tq-systems/em-build-yocto
     branch: main
 
-  - name: toolchain
+  yocto/em-build:
+    url: https://github.com/tq-systems/em-build
+    branch: master
+
+  toolchain:
     url: https://github.com/tq-systems/em-build-toolchain
     branch: main
 
-demo:
-  - name: apps/go-demo
+  apps/go-demo:
     url: https://github.com/tq-systems/em-app-go-demo
     branch: main
 
-  - name: bundles/demo
+  bundles/demo:
     url: https://github.com/tq-systems/em-bundle-demo
     branch: main

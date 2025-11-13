@@ -23,7 +23,7 @@ all: prepare
 
 # Build
 prepare:
-	./scripts/prepare_projects.py
+	$(PREPARE_SCRIPT)
 
 base:
 	$(MAKE) -C ${TQEM_BUILD_BASE_DIR} all
@@ -32,7 +32,11 @@ core: core-build
 	$(MAKE) core-deploy
 
 core-build:
-	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} all
+	$(eval CORE_URL := $(shell $(PREPARE_SCRIPT) --core-url))
+	$(eval CORE_REF := $(shell $(PREPARE_SCRIPT) --core-ref))
+	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} all \
+		TQEM_EM_BUILD_GIT_REPO=${CORE_URL} \
+		TQEM_EM_BUILD_REF=${CORE_REF}
 
 core-deploy:
 	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} deploy
