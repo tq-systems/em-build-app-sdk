@@ -1,0 +1,87 @@
+%XeLaTeX packages
+\usepackage{xltxtra}
+\usepackage{fontspec} %Font package
+\usepackage{xunicode}
+\usepackage{etoolbox}
+\usepackage{tabularx}
+
+% Set things in TQ colours: blue headlines, dark grey links, headers and footers
+\usepackage{xcolor}
+\usepackage{sectsty}
+\definecolor{headlines}{RGB}{0,167,229}  % TQ Blau
+\definecolor{darkgrey}{RGB}{89,89,89} % Dark grey
+
+\hypersetup{
+    allcolors = {darkgrey}
+}
+
+\chapterfont{\color{headlines}}  % sets colour of chapters
+\sectionfont{\color{headlines}}  % sets colour of sections
+\subsectionfont{\color{headlines}}  % sets colour of sections
+
+% Define headers and footers. By default, these are not displayed on the first page of a new chapter.
+\usepackage[page]{totalcount}
+
+\makeatletter
+  \fancypagestyle{normal}{
+    \setlength{\headheight}{32pt}
+    \fancyhf{}
+    \fancyfoot[RE,RO]{{\py@HeaderFamily Page \thepage \ of \totalpages}}
+    \fancyfoot[LE,LO]{{\py@HeaderFamily ${filename}}}
+    \fancyhead[LE,LO]{{\py@HeaderFamily \@title, \py@release}}
+    \fancyhead[RE,RO]{{\includegraphics[width=1cm]{../../_static/tq_logo_small}}}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0.4pt}
+  }
+\makeatother
+
+\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
+
+\def\copyrightpage{
+    \pagestyle{empty}
+   \null
+    \vfill
+
+    \textbf{Treatment and archiving information}
+
+This document in the present revision state will be archived in the document management system of TQ-Systems GmbH under the name ${filename}.
+
+
+\vspace{15mm}
+
+{
+\scriptsize
+\setlength{\extrarowheight}{1mm}
+
+\begin{tabularx}{\textwidth}{|X|p{0.1\textwidth}|p{0.22\textwidth}|X|p{0.32\textwidth}|}
+    \hline
+    \multicolumn{5}{|l|}{${documenttype}}\\
+    \hline
+    Created: & ${createddate} & ${createdby} & Project: & ${project}\\
+    \hline
+    Checked: & ${checkeddate} & ${checkedby} & Customer: & ${customer}\\
+    \hline
+    \multicolumn{3}{|l|}{} & Document no.: & ${documentnr} \\
+    \hline
+    Company: & \multicolumn{2}{l|}{TQ-Systems GmbH} & File: & ${filename} \\
+    \hline
+    \multicolumn{5}{|l|}{}\\
+    \hline
+    \multicolumn{5}{|p{0.97\textwidth}|}{\textcopyright ${copyright}}\\
+    \hline
+\end{tabularx}
+}
+
+    \newpage
+}
+
+\def\tocpage{
+    \pagestyle{normal}
+    \setcounter{page}{1}
+    \tableofcontents
+}
+
+%Select fonts
+\setmainfont[Mapping=tex-text]{DejaVuSerif}
+\setsansfont[Mapping=tex-text]{DejaVuSans}
+\setmonofont{DejaVuSansMono}
