@@ -3,6 +3,47 @@
 The Application Software Development Kit, or App SDK for short, enables the build of
 the TQ Energy Manager toolchain.
 
+## Components
+
+Building the toolchain is made possible by the following components
+that are dependant on each other in this order:
+
+- base
+  Provides docker-based build environments for consistent builds
+
+- yocto
+  Generates images for the lowlevel ARM64 hardware support and operating system
+
+- em-build
+  Combines Yocto metalayers that contain recipes for building operating system and rootfs
+
+- toolchain
+  Cross-compilation environment for ARM64 application builds
+
+- go-demo-app
+  Reference Go implementation of an exemplary app
+
+- demo-bundle
+  Reference bundle implementation to collect multiple apps into a single package
+
+## First steps
+
+### Prerequisites
+
+Building the App SDK requires the following host packages:
+- docker
+- make
+- git
+
+### Getting started
+
+Clone the App SDK repository to your machine:
+
+- `git clone https://github.com/tq-systems/em-build-app-sdk`
+
+Then change into the `em-build-app-sdk` directory and use one of the
+make commands to start building.
+
 ## Commands
 The Makefile supports the following commands:
 
@@ -30,3 +71,7 @@ The Makefile supports the following commands:
 - `make clean` - Cleans up build artifacts and docs directory.
 - `make clean-demo` - Cleans only the demo app and bundle artifacts.
 - `make clean-docker` - Removes unused Docker containers, networks, and images.
+
+## Further reference
+
+Please also consider the project specific READMEs.
