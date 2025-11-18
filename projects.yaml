@@ -2,23 +2,29 @@ projects:
   base:
     url: https://github.com/tq-systems/em-build-base
     branch: main
+    reference: 9ddeab892787e7c6d12a0c2c0fce404f1b9c4e2b
 
   yocto:
     url: https://github.com/tq-systems/em-build-yocto
     branch: main
+    reference: 407ccb39eea5af3e6f39ea02bde85da7f1550255
 
   yocto/em-build:
     url: https://github.com/tq-systems/em-build
-    branch: master
+    branch: release/8.1.x
+    reference: 8641022d7ecf9449c5f15d92e7f1f60e45f24cc1
 
   toolchain:
     url: https://github.com/tq-systems/em-build-toolchain
     branch: main
+    reference: 38dfd7bcbc70c1131f1bee80ab90c2e52298821a
 
   apps/go-demo:
     url: https://github.com/tq-systems/em-app-go-demo
     branch: main
+    reference: dd172f79b1d7c1bf202f1eb1d27c5d0b41cf5e84
 
   bundles/demo:
     url: https://github.com/tq-systems/em-bundle-demo
     branch: main
+    reference: 7b38254ef471f49eb35ed11fc92dd8239a107710
