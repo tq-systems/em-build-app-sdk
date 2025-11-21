@@ -24,8 +24,16 @@ Build All (staging):
   variables:
     MAKE_TARGET: "all"
     LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/deploy"
-  script:
-    - make ${MAKE_TARGET} TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}"
+    BUILD_BASE_REGISTRY: "local/em/base"
+    BUILD_BASE_DOCKER_TAG: "latest"
+    BUILD_TOOLCHAIN_REGISTRY: "local/em/toolchain"
+    BUILD_TOOLCHAIN_DOCKER_TAG: "latest"
+  script: >
+    make "${MAKE_TARGET}" TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}"
+      BASE_REGISTRY="${BUILD_BASE_REGISTRY}"
+      BASE_DOCKER_TAG="${BUILD_BASE_DOCKER_TAG}"
+      PUBLIC_TOOLCHAIN_REGISTRY="${BUILD_TOOLCHAIN_REGISTRY}"
+      PUBLIC_TOOLCHAIN_DOCKER_TAG="${BUILD_TOOLCHAIN_DOCKER_TAG}"
 
 # Tests
 Shell Linter:
