@@ -1,5 +1,6 @@
 /artifacts
-/docs/build
 /build
+/docs/build
+/local
 
 *drawio.bkp
