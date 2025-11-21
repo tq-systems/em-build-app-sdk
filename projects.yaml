@@ -22,7 +22,7 @@ projects:
   apps/go-demo:
     url: https://github.com/tq-systems/em-app-go-demo
     branch: main
-    reference: dd172f79b1d7c1bf202f1eb1d27c5d0b41cf5e84
+    reference: 510c093dd158ca692f6b1375c5d92ab285a3cc01
 
   bundles/demo:
     url: https://github.com/tq-systems/em-bundle-demo
