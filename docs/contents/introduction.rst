@@ -19,6 +19,10 @@ It provides a set of features:
 * **Demo Application**: Ready-to-use example application
 * **Demo Bundle**: Ready-to-use example firmware
 
+You only need one project to start development:
+
+    `https://github.com/tq-systems/em-build-app-sdk <https://github.com/tq-systems/em-build-app-sdk>`_
+
 Purpose of this documentation
 -----------------------------
 
