@@ -88,3 +88,9 @@ on Github:
 ## Further reference
 
 Please also consider the project specific READMEs.
+
+## License Information
+All files in this project are classified as product-specific software and bound
+to the use with the TQ-Systems GmbH product: EM400
+
+    SPDX-License-Identifier: LicenseRef-TQSPSLA-1.0.3
