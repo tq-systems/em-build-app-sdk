@@ -17,12 +17,12 @@ author = 'TQ-Systems'
 copyright = '''Copyright (c) 2025 TQ-Systems GmbH <license@tq-group.com>, D-82229 Seefeld, Germany.
 All rights reserved.'''
 
-version = release = 'v0.1.0'
+version = release = 'v0.1.1'
 
 documenttype = 'Quickstart Document'
-createddate = '12.11.2025'
+createddate = '21.11.2025'
 createdby = 'Krutz, Christoph'
-checkeddate = "14.11.2025"
+checkeddate = "21.11.2025"
 checkedby = "Krummsdorf, Michael"
 project = 'App SDK'
 customer = 'TQ-Systems GmbH'

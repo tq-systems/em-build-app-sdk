@@ -72,6 +72,25 @@ The Makefile supports the following commands:
 - `make clean-demo` - Cleans only the demo app and bundle artifacts.
 - `make clean-docker` - Removes unused Docker containers, networks, and images.
 
+### Releases
+New versions of this App-SDK project are published as `Github Releases`.
+We recommend to always rely on versions released as `Github Releases` as
+they passed substantial QA procedures. Any in-between stages or tags
+could still contain bugs and faults not yet detected by QA.
+
+If you wish to be notified upon new `Github Releases` you can subscribe to events
+on Github:
+- Open `https://github.com/tq-systems/em-build-app-sdk`
+- Select `Watch` in the header (visible when logged in)
+- Choose a notification option, e.g. `Custom`
+- Select `Releases` to receive an e-mail notification on new App-SDK releases
+
 ## Further reference
 
 Please also consider the project specific READMEs.
+
+## License Information
+All files in this project are classified as product-specific software and bound
+to the use with the TQ-Systems GmbH product: EM400
+
+    SPDX-License-Identifier: LicenseRef-TQSPSLA-1.0.3
