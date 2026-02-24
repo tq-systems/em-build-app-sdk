@@ -17,7 +17,7 @@ projects:
   toolchain:
     url: https://github.com/tq-systems/em-build-toolchain
     branch: main
-    reference: 38dfd7bcbc70c1131f1bee80ab90c2e52298821a
+    reference: e1ca633a38d1714992d643f46750b2d6a9f1463f
 
   apps/go-demo:
     url: https://github.com/tq-systems/em-app-go-demo
