@@ -1,3 +1,7 @@
+## [0.1.2] - 2026-02-24
+### Changed
+- Updated the toolchain
+
 ## [0.1.1] - 2025-11-24
 ### Changed
 - Updated the go-demo application
