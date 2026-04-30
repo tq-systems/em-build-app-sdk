@@ -55,6 +55,12 @@ demo-bundle:
 	$(RUN_AARCH64) $(MAKE) -C ${TQEM_BUILD_BUNDLES_DIR}/demo prepare
 	$(RUN_AARCH64) $(MAKE) -j1 -C ${TQEM_BUILD_BUNDLES_DIR}/demo all deploy-snapshot
 
+frontend-dev:
+	./scripts/frontend-dev.sh
+
+frontend-dev-check:
+	./scripts/frontend-dev.sh --check
+
 docs:
 	$(MAKE_DOCS) html
 	$(MAKE_DOCS) latexpdf
@@ -82,6 +88,7 @@ clean:
 
 .PHONY: all prepare \
 	base core core-build core-deploy toolchain go-demo-app demo-bundle \
+	frontend-dev frontend-dev-check \
 	docs \
 	test-all test-from-scratch run-aarch64-bash \
 	clean-demo clean-docker clean

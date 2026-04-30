@@ -49,3 +49,14 @@ Python Linter:
 
 Gitleaks:
   extends: .gitleaks
+
+Frontend Dev Check:
+  stage: test
+  extends:
+    - .gitlab-runner-linux
+    - .rule-include-development-branches
+  script:
+    - make frontend-dev-check
+      TQEM_FRONTEND_APP_ID=ci-smoke
+      TQEM_FRONTEND_APP_DIR=/tmp/ci-smoke/frontend
+      TQEM_TARGET_URL=http://127.0.0.1
