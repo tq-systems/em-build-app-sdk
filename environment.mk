@@ -49,3 +49,15 @@ TQEM_CI_DESTINATION ?= ${TQEM_CI_HOSTNAME}:${TQEM_CI_HOME_PATH}
 # Docker tags
 BASE_DOCKER_TAG ?= latest
 PUBLIC_TOOLCHAIN_DOCKER_TAG ?= latest
+
+# Frontend development
+# Public defaults below; internal hosts override these via /etc/profile.d/toolchain.sh
+# from tq-em/tools/ansible.
+export TQEM_UI_SERVER_REPO       ?= https://github.com/tq-systems/em-app-open-ui-container.git
+export TQEM_UI_SERVER_VERSION    ?= main
+export TQEM_UI_SERVER_DIR        ?= ${TQEM_BUILD_APPS_DIR}/ui-server
+export TQEM_BRANDING             ?= default
+export TQEM_TARGET_URL           ?=
+export TQEM_FRONTEND_APP_ID      ?=
+export TQEM_FRONTEND_APP_DIR     ?=
+export TQEM_FRONTEND_DEV_HOST    ?= 0.0.0.0

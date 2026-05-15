@@ -35,6 +35,10 @@ Building the App SDK requires the following host packages:
 - make
 - git
 
+For local frontend development (`make frontend-dev`) the following additional packages are required:
+- Node.js 22 or later
+- yarn (install via `corepack enable` after installing Node.js)
+
 ### Getting started
 
 Clone the App SDK repository to your machine:
@@ -59,6 +63,54 @@ The Makefile supports the following commands:
 - `make toolchain` - Builds the complete toolchain including the Yocto SDK.
 - `make go-demo-app` - Builds and deploys the Go demo application.
 - `make demo-bundle` - Builds and deploys the demo bundle.
+
+### Frontend Development
+- `make frontend-dev` - Starts a local frontend development environment for a single
+  app frontend against a running gateway. The UI-Server is any repository that hosts
+  the shell application loading the app frontends (for example the public
+  `em-app-open-ui-container`). The target performs the following steps:
+
+  1. Clones the UI-Server repository into `TQEM_UI_SERVER_DIR` (or updates
+     an existing checkout) and checks out `TQEM_UI_SERVER_VERSION`.
+  2. Generates a `.env` in the UI-Server with the branding and gateway URL.
+  3. Symlinks the app's vite build output directory
+     (`<APP_DIR>/container/frontend/apps/<APP_ID>/`) into the UI-Server's
+     `frontend/apps/<APP_ID>/`, so the dev server can serve the built bundles.
+  4. Writes `apps.json` and `langs.json` so the UI-Server knows which app
+     entry points to load.
+  5. Runs `yarn install` in both the UI-Server and the app frontend.
+  6. Starts the app's vite watch build in the background and the UI-Server
+     dev server in the foreground. The dev server proxies `/api` to the gateway.
+
+  Required variables:
+  - `TQEM_FRONTEND_APP_ID` - App identifier (e.g. `go-demo`)
+  - `TQEM_FRONTEND_APP_DIR` - Absolute path to the app's `frontend/` directory
+  - `TQEM_TARGET_URL` - URL of a running Energy Manager gateway (e.g. `http://192.168.1.100`)
+
+  Optional variables:
+  - `TQEM_BRANDING` - UI branding to use (default: `default`)
+  - `TQEM_UI_SERVER_REPO` - UI-Server git repository URL (default: public GitHub repo)
+  - `TQEM_UI_SERVER_VERSION` - UI-Server branch or tag to use (default: `main`)
+  - `TQEM_UI_SERVER_DIR` - Directory the UI-Server is cloned into
+    (default: `build/apps/ui-server` inside the App SDK)
+  - `TQEM_FRONTEND_DEV_HOST` - Bind address of the dev server (default: `0.0.0.0`,
+    reachable from other machines on the network). Set to `127.0.0.1` to expose
+    only on the local machine.
+
+  Example:
+  ```
+  make frontend-dev \
+    TQEM_FRONTEND_APP_ID=go-demo \
+    TQEM_FRONTEND_APP_DIR=/path/to/go-demo/frontend \
+    TQEM_TARGET_URL=http://192.168.1.100
+  ```
+
+  Once started, the dev server is reachable at `http://<host>:5173/`. Source
+  changes in the app frontend trigger an incremental rebuild and the browser
+  reloads automatically.
+
+- `make frontend-dev-check` - Validates that all required `TQEM_*` variables for
+  `frontend-dev` are set. Does not clone, install or start anything; safe for CI.
 
 ### Documentation
 - `make docs` - Builds the documentation (HTML and PDF).

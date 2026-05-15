@@ -20,7 +20,7 @@ if [ -n "$DOCKER_UID" ]; then
 	CURRENT_UID="$DOCKER_UID"
 fi
 if [ -n "$DOCKER_GID" ]; then
-	CURRENT_UID="$DOCKER_GID"
+	CURRENT_GID="$DOCKER_GID"
 fi
 
 CURRENT_PATH="$(pwd)"
@@ -49,11 +49,18 @@ if [ -t 1 ]; then
     DOCKER_TERMINAL="-it"
 fi
 
-# Pass environment variables starting with TQEM_ to the container
-# shellcheck disable=SC2046
+# Pass environment variables starting with TQEM_ to the container.
+# Build the args as an array so values containing spaces or newlines do not
+# get word-split into separate arguments (which would otherwise shift the
+# positional image argument and confuse docker run).
+ENV_ARGS=()
+while IFS= read -r tqem_var; do
+	ENV_ARGS+=(-e "$tqem_var")
+done < <(env | grep '^TQEM_')
+
 exec docker run "$DOCKER_TERMINAL" --init \
 	--security-opt seccomp=unconfined \
-	$(env | grep ^TQEM_ | sed 's/^/-e /') \
+	"${ENV_ARGS[@]}" \
 	-u "$CURRENT_UID:$CURRENT_GID" \
 	"${MOUNT_ARGS[@]}" \
 	-v "$TQEM_BASE_DEPLOY_PATH:$TQEM_BASE_DEPLOY_PATH" \
