@@ -5,6 +5,9 @@ RUN_YOCTO := ${RUN_DOCKER} ${BASE_REGISTRY}/yocto:${BASE_DOCKER_TAG}
 RUN_AARCH64 := ${RUN_DOCKER} ${PUBLIC_TOOLCHAIN_REGISTRY}/aarch64:${PUBLIC_TOOLCHAIN_DOCKER_TAG}
 
 MAKE_DOCS := cd ${TQEM_DOCS_DIR} && $(MAKE)
+MAKE_AARCH64 := $(RUN_AARCH64) $(MAKE) -C
+
+CLEAN_BUILD ?= true
 
 # Use current uid/gid for the docker builds to prevent permission issues
 export DOCKER_UID ?= $(shell id -u)
@@ -19,6 +22,7 @@ all: prepare
 	$(MAKE) core
 	$(MAKE) toolchain
 	$(MAKE) go-demo-app
+	$(MAKE) open-ui-container-app
 	$(MAKE) demo-bundle
 
 # Build
@@ -39,21 +43,27 @@ core-build:
 		TQEM_EM_BUILD_REF=${CORE_REF}
 
 core-deploy:
-	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} deploy
+	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} snapshot-deploy
 
 toolchain:
 	$(MAKE) -C ${TQEM_BUILD_TOOLCHAIN_DIR} all
 
-# Characteristics of app/bundle builds must be considered:
-# A separate 'make prepare' is required to create VERSION.txt first and read it during include
-# of version.mk. Parallel build issues are prevented by setting '-j1'.
+# Currently, certain make targets still need to be executed sequentially to avoid issues
+# during builds that use multiple CPU threads.
 go-demo-app:
-	$(RUN_AARCH64) $(MAKE) -C ${TQEM_BUILD_APPS_DIR}/go-demo prepare
-	$(RUN_AARCH64) $(MAKE) -j1 -C ${TQEM_BUILD_APPS_DIR}/go-demo all deploy-snapshot
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo prepare
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo all
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo deploy-snapshot
+
+open-ui-container-app:
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container prepare
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container all
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container deploy-snapshot
 
 demo-bundle:
-	$(RUN_AARCH64) $(MAKE) -C ${TQEM_BUILD_BUNDLES_DIR}/demo prepare
-	$(RUN_AARCH64) $(MAKE) -j1 -C ${TQEM_BUILD_BUNDLES_DIR}/demo all deploy-snapshot
+	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo prepare
+	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo all
+	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo deploy-snapshot
 
 frontend-dev:
 	./scripts/frontend-dev.sh
@@ -69,7 +79,7 @@ docs:
 	cp ${TQEM_BUILD_DOCS_DIR}/latex/*.pdf ${TQEM_DOCS_ARTIFACTS_DIR}/
 
 # Test
-test-all: clean clean-docker
+test-all: clean
 	$(MAKE) all
 
 run-aarch64-bash:
@@ -77,18 +87,29 @@ run-aarch64-bash:
 
 # Clean
 clean-demo:
-	$(RUN_AARCH64) $(MAKE) -C ${TQEM_BUILD_APPS_DIR}/go-demo clean
-	$(RUN_AARCH64) $(MAKE) -C ${TQEM_BUILD_BUNDLES_DIR}/demo clean
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo           clean
+	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container clean
+	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo           clean
 
 clean-docker:
 	docker system prune --force
 
-clean:
-	rm -rf ${TQEM_BUILD_DIR} ${TQEM_BUILD_DOCS_DIR}
+clean-docs:
+	rm -rf ${TQEM_BUILD_DOCS_DIR}
+
+# Set 'CLEAN_BUILD=false' to retain the build cache for incremental builds,
+# particularly as the core build takes a very long time.
+clean-build:
+ifeq ($(CLEAN_BUILD),true)
+	rm -rf ${TQEM_BUILD_DIR}
+endif
+
+clean: clean-demo clean-docker clean-docs clean-build
 
 .PHONY: all prepare \
-	base core core-build core-deploy toolchain go-demo-app demo-bundle \
+	base core core-build core-deploy toolchain \
+	go-demo-app open-ui-container-app demo-bundle \
 	frontend-dev frontend-dev-check \
 	docs \
-	test-all test-from-scratch run-aarch64-bash \
-	clean-demo clean-docker clean
+	test-all run-aarch64-bash \
+	clean-demo clean-docker clean-docs clean-build clean
