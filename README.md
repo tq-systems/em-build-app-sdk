@@ -23,6 +23,9 @@ that are dependant on each other in this order:
 - go-demo-app
   Reference Go implementation of an exemplary app
 
+- open-ui-container-app
+  Exemplary ui server app for frontend development
+
 - demo-bundle
   Reference bundle implementation to collect multiple apps into a single package
 
@@ -62,6 +65,7 @@ The Makefile supports the following commands:
 - `make core-deploy` - Deploys the core components.
 - `make toolchain` - Builds the complete toolchain including the Yocto SDK.
 - `make go-demo-app` - Builds and deploys the Go demo application.
+- `make open-ui-container-app` - Builds and deploys the ui server app.
 - `make demo-bundle` - Builds and deploys the demo bundle.
 
 ### Frontend Development

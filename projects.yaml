@@ -19,6 +19,10 @@ projects:
     url: https://github.com/tq-systems/em-app-go-demo
     branch: main
 
+  apps/open-ui-container:
+    url: https://github.com/tq-systems/em-app-open-ui-container
+    branch: main
+
   bundles/demo:
     url: https://github.com/tq-systems/em-bundle-demo
     branch: main

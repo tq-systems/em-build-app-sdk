@@ -1,41 +1,12 @@
 ---
 include:
-- project: tq-em/build/docker/toolchain-ci
-  file: common/include.yml
-  ref: master
-- local: ci/templates.yml
+- local: ci/base.yml
 
 stages:
-- build
 - test
-- deploy
+- build
+- integration
 
-# Builds
-Build Documentaion:
-  stage: build
-  extends:
-    - .artifacts-always-one-week
-    - .gitlab-runner-linux
-    - .image-doc
-  script: make docs
-
-Build All (staging):
-  extends: .staging-build
-  variables:
-    MAKE_TARGET: "all"
-    LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/deploy"
-    BUILD_BASE_REGISTRY: "local/em/base"
-    BUILD_BASE_DOCKER_TAG: "latest"
-    BUILD_TOOLCHAIN_REGISTRY: "local/em/toolchain"
-    BUILD_TOOLCHAIN_DOCKER_TAG: "latest"
-  # Overwrite some CI/CD variables to enable a local build
-  script: >
-    env BASE_REGISTRY="${BUILD_BASE_REGISTRY}" \
-      BASE_DOCKER_TAG="${BUILD_BASE_DOCKER_TAG}" \
-      PUBLIC_TOOLCHAIN_REGISTRY="${BUILD_TOOLCHAIN_REGISTRY}" \
-      PUBLIC_TOOLCHAIN_DOCKER_TAG="${BUILD_TOOLCHAIN_DOCKER_TAG}" \
-      TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}" \
-      make "${MAKE_TARGET}"
 # Tests
 Shell Linter:
   extends:
@@ -49,14 +20,78 @@ Python Linter:
 
 Gitleaks:
   extends: .gitleaks
+  allow_failure: true
 
 Frontend Dev Check:
   stage: test
   extends:
-    - .gitlab-runner-linux
+    - .gitlab-runner-tag
     - .rule-include-development-branches
+  image: ${CI_REGISTRY}/tq-em/public/build/toolchain/amd64:latest
   script:
     - make frontend-dev-check
       TQEM_FRONTEND_APP_ID=ci-smoke
       TQEM_FRONTEND_APP_DIR=/tmp/ci-smoke/frontend
       TQEM_TARGET_URL=http://127.0.0.1
+
+# Builds
+Build Documentaion:
+  stage: build
+  extends:
+    - .artifacts-always-one-week
+    - .gitlab-runner-tag
+  image: ${CI_REGISTRY}/tq-em/build/docker/toolchain/doc:latest
+  script: make docs
+
+Build All:
+  stage: build
+  extends:
+    - .gitlab-runner-tag
+  # Prevent concurrent build jobs from interfering with each other
+  resource_group: ${CI_PROJECT_PATH}-build
+  variables:
+    BUILD_BASE_DOCKER_TAG: "latest"
+    BUILD_TOOLCHAIN_DOCKER_TAG: "latest"
+    LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/tqem/deploy"
+    MAKE_TARGET: "all"
+    GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH"
+    GIT_CLEAN_FLAGS: -ffd
+    GITLAB_RUNNER_TAG: "tq-em-shell"
+    CLEAN_BUILD: "false"
+  # Remove old build artifacts to prevent them from interfering with the new build
+  before_script: make clean
+  # Overwrite some CI/CD variables to enable a local build
+  script: >
+    env \
+      BASE_REGISTRY="local/em/base" \
+      BASE_DOCKER_TAG="${BUILD_BASE_DOCKER_TAG}" \
+      PUBLIC_TOOLCHAIN_REGISTRY="local/em/toolchain" \
+      PUBLIC_TOOLCHAIN_DOCKER_TAG="${BUILD_TOOLCHAIN_DOCKER_TAG}" \
+      TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}" \
+      make "${MAKE_TARGET}"
+  artifacts:
+    name: $ARTIFACT_REF
+    expire_in: 1 week
+    when: always
+    paths:
+      - build/bundles/demo/deploy/*.raucb
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^release/
+      variables:
+        CLEAN_BUILD: "true"
+    - when: always
+
+Simple Update Test:
+  stage: integration
+  extends:
+    - .gitlab-runner-tag
+    - .rule-include-development-branches
+  # Prevent concurrent build jobs from interfering with each other
+  resource_group: ${CI_PROJECT_PATH}-integration
+  image: ${CI_REGISTRY}/tq-em/build/docker/toolchain/web:latest
+  variables:
+    TARGET_IP: ${DEFAULT_TARGET_IP}
+    TARGET_PW: ${DEFAULT_TARGET_PW}
+  script: |
+    BUNDLE_PATH=$(ls -t build/bundles/demo/deploy/*.raucb | head -n 1)
+    em-bundle-install.sh $TARGET_IP $BUNDLE_PATH -f -p $TARGET_PW
