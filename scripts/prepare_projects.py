@@ -41,25 +41,18 @@ def update_git_repo(name, info):
     if not url:
         raise ValueError("Project URL is required")
 
-    branch = info.get("branch")
-    if not branch:
-        raise ValueError("Project branch is required")
-
-    reference = info.get("reference")
+    reference = info.get("ref")
+    if not reference:
+        raise ValueError("Project reference is required")
 
     if not os.path.isdir(project_path):
         run([f"git clone {url} {project_path}"])
     else:
         # Always update origin URL on existing repositories as it may be overwritten locally
-        run([f"git -C {project_path} remote set-url origin {url} || \
-               git -C {project_path} remote add origin {url}"])
+        run([f"git -C {project_path} remote set-url origin {url}"])
 
     run([f"git -C {project_path} fetch --tags --prune origin"])
-
-    if reference:
-        run([f"git -C {project_path} checkout {reference}"])
-    else:
-        run([f"git -C {project_path} checkout origin/{branch} -B {branch}"])
+    run([f"git -C {project_path} checkout {reference}"])
 
 # Load config(s)
 if not os.path.isfile(CONFIG):
@@ -75,26 +68,23 @@ if os.path.isfile(LOCAL_CONFIG):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process the projects.yml file.")
-    parser.add_argument("-u", "--core-url", action="store_true",
-                        help="Print git URL of the core (em-build).")
-    parser.add_argument("-r", "--core-ref", action="store_true",
-                        help="Print git reference of the core (em-build).")
+    parser.add_argument("-u", "--url", type=str,
+                        help="Print git URL.")
+    parser.add_argument("-r", "--ref", type=str,
+                        help="Print git reference.")
     args = parser.parse_args()
 
-    if args.core_url is True:
-        get_url = config_data.get("projects", {}).get("yocto/em-build", {}).get("url", "")
+    if args.url:
+        get_url = config_data.get("projects").get(args.url).get("url", "")
         print(get_url)
+        os.sys.exit(0)
 
-    elif args.core_ref is True:
-        get_reference = config_data.get("projects").get("yocto/em-build").get("reference")
+    if args.ref:
+        get_reference = config_data.get("projects").get(args.ref).get("ref")
         if get_reference is not None:
             print(get_reference)
-        else:
-            get_branch = config_data.get("projects").get("yocto/em-build").get("branch")
-            print(get_branch)
+        os.sys.exit(0)
 
-    else:
-        os.makedirs(BUILD_DIR, exist_ok=True)
-
-        for project_name, project_info in config_data["projects"].items():
-            update_git_repo(project_name, project_info)
+    os.makedirs(BUILD_DIR, exist_ok=True)
+    for project_name, project_info in config_data["projects"].items():
+        update_git_repo(project_name, project_info)
