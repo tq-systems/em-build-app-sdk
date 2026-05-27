@@ -5,7 +5,7 @@ RUN_YOCTO := ${RUN_DOCKER} ${BASE_REGISTRY}/yocto:${BASE_DOCKER_TAG}
 RUN_AARCH64 := ${RUN_DOCKER} ${PUBLIC_TOOLCHAIN_REGISTRY}/aarch64:${PUBLIC_TOOLCHAIN_DOCKER_TAG}
 
 MAKE_DOCS := cd ${TQEM_DOCS_DIR} && $(MAKE)
-MAKE_AARCH64 := $(RUN_AARCH64) $(MAKE) -C
+MAKE_AARCH64 := $(RUN_AARCH64) $(MAKE_ENV) $(MAKE)
 
 CLEAN_BUILD ?= true
 
@@ -36,11 +36,11 @@ core: core-build
 	$(MAKE) core-deploy
 
 core-build:
-	$(eval CORE_URL := $(shell $(PREPARE_SCRIPT) --core-url))
-	$(eval CORE_REF := $(shell $(PREPARE_SCRIPT) --core-ref))
+	$(eval URL := $(shell $(PREPARE_SCRIPT) --url yocto/em-build))
+	$(eval REF := $(shell $(PREPARE_SCRIPT) --ref yocto/em-build))
 	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} all \
-		TQEM_EM_BUILD_GIT_REPO=${CORE_URL} \
-		TQEM_EM_BUILD_REF=${CORE_REF}
+		TQEM_EM_BUILD_GIT_REPO=${URL} \
+		TQEM_EM_BUILD_REF=${REF}
 
 core-deploy:
 	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} snapshot-deploy
@@ -51,19 +51,22 @@ toolchain:
 # Currently, certain make targets still need to be executed sequentially to avoid issues
 # during builds that use multiple CPU threads.
 go-demo-app:
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo prepare
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo all
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo deploy-snapshot
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo prepare
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo all
+	$(eval MAKE_ENV := TQEM_DEPLOYMENT_SUBDIR=$(shell $(PREPARE_SCRIPT) --ref apps/go-demo))
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo deploy-snapshot
 
 open-ui-container-app:
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container prepare
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container all
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container deploy-snapshot
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container prepare
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container all
+	$(eval MAKE_ENV := TQEM_DEPLOYMENT_SUBDIR=$(shell $(PREPARE_SCRIPT) --ref apps/open-ui-container))
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container deploy-snapshot
 
 demo-bundle:
-	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo prepare
-	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo all
-	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo deploy-snapshot
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo prepare
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo all
+	$(eval MAKE_ENV := TQEM_DEPLOYMENT_SUBDIR=$(shell $(PREPARE_SCRIPT) --ref bundles/demo))
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo deploy-snapshot
 
 frontend-dev:
 	./scripts/frontend-dev.sh
@@ -87,9 +90,9 @@ run-aarch64-bash:
 
 # Clean
 clean-demo:
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/go-demo           clean
-	$(MAKE_AARCH64) ${TQEM_BUILD_APPS_DIR}/open-ui-container clean
-	$(MAKE_AARCH64) ${TQEM_BUILD_BUNDLES_DIR}/demo           clean
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo           clean
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container clean
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo           clean
 
 clean-docker:
 	docker system prune --force
