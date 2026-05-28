@@ -25,6 +25,9 @@ The projects have a link to the source code.
    * - `Demo Application <https://github.com/tq-systems/em-app-go-demo>`_
      - A simple Go-based reference implementation showcasing common patterns and best practices
        for TQ Energy Manager application.
+   * - `Demo UI Container <https://github.com/tq-systems/em-app-open-ui-container>`
+     - The web container for all apps, it serves as the foundation for developing
+       custom brandings and apps for Energy Manager devices.
    * - `Demo Bundle <https://github.com/tq-systems/em-bundle-demo>`_
      - A reference implementation for an TQ Energy Manager firmware.
 

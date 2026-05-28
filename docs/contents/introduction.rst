@@ -17,6 +17,7 @@ It provides a set of features:
 * **Yocto Integration**: Built on Yocto Project for creating a customized Linux distribution
 * **Cross-Platform Development**: Support for ARM64 (aarch64) target platforms
 * **Demo Application**: Ready-to-use example application
+* **Demo UI Container**: Web container for all apps, includes a branded design
 * **Demo Bundle**: Ready-to-use example firmware
 
 You only need one project to start development:
