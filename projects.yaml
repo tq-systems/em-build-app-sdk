@@ -1,28 +1,28 @@
 projects:
   base:
     url: https://github.com/tq-systems/em-build-base
-    ref: main
+    ref: v3.1.0
 
   yocto:
     url: https://github.com/tq-systems/em-build-yocto
-    ref: main
+    ref: v1.2.1
 
   yocto/em-build:
     url: https://github.com/tq-systems/em-build
-    ref: master
+    ref: v9.0.2
 
   toolchain:
     url: https://github.com/tq-systems/em-build-toolchain
-    ref: main
+    ref: v2.0.3
 
   apps/go-demo:
     url: https://github.com/tq-systems/em-app-go-demo
-    ref: main
+    ref: v1.0.0
 
   apps/open-ui-container:
     url: https://github.com/tq-systems/em-app-open-ui-container
-    ref: main
+    ref: v1.0.2
 
   bundles/demo:
     url: https://github.com/tq-systems/em-bundle-demo
-    ref: main
+    ref: 7a77e66907e2b39d3157a7ab5042366c82222c0d
