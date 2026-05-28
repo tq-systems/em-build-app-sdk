@@ -14,15 +14,15 @@ import string
 
 author = 'TQ-Systems'
 
-copyright = '''Copyright (c) 2025 TQ-Systems GmbH <license@tq-group.com>, D-82229 Seefeld, Germany.
+copyright = '''Copyright (c) 2026 TQ-Systems GmbH <license@tq-group.com>, D-82229 Seefeld, Germany.
 All rights reserved.'''
 
-version = release = 'v0.1.1'
+version = release = 'v0.2.0'
 
 documenttype = 'Quickstart Document'
-createddate = '21.11.2025'
+createddate = '28.05.2026'
 createdby = 'Krutz, Christoph'
-checkeddate = "21.11.2025"
+checkeddate = "28.05.2026"
 checkedby = "Krummsdorf, Michael"
 project = 'App SDK'
 customer = 'TQ-Systems GmbH'
