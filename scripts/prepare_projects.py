@@ -53,6 +53,7 @@ def update_git_repo(name, info):
 
     run([f"git -C {project_path} fetch --tags --prune origin"])
     run([f"git -C {project_path} checkout {reference}"])
+    run([f"git -C {project_path} pull origin --ff-only"])
 
 # Load config(s)
 if not os.path.isfile(CONFIG):

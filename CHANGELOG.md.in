@@ -1,12 +1,3 @@
 ## [{{ version }}]
-### Added
-- frontend-dev make target that drives a local development environment for an app frontend against
-  a UI-Server without a git submodule, plus a frontend-dev-check smoke target exercised in CI
-- App: open-ui-container
-
 ### Fixed
-- docker-run.sh: assign DOCKER_GID to CURRENT_GID instead of CURRENT_UID and build TQEM env -e
-  arguments as a quoted array so multi-line CI variables no longer mangle the docker run invocation
-
-### Changed
-- docs: update docs
+- prepare_projects: pull remote changes
