@@ -1,1 +1,3 @@
 ## [{{ version }}]
+### Changed
+- projects.yaml: update versions
