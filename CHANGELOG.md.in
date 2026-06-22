@@ -1,3 +1,4 @@
 ## [{{ version }}]
 ### Fixed
 - prepare_projects: pull remote changes
+- prepare_projects: pull only for branches
