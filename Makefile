@@ -25,6 +25,10 @@ all: prepare
 	$(MAKE) open-ui-container-app
 	$(MAKE) demo-bundle
 
+# Rebuild all targets, the core build is kept unless CLEAN_BUILD=true.
+rebuild: clean
+	$(MAKE) all
+
 # Build
 prepare:
 	$(PREPARE_SCRIPT)
