@@ -111,7 +111,11 @@ ifeq ($(CLEAN_BUILD),true)
 	rm -rf ${TQEM_BUILD_DIR}
 endif
 
-clean: clean-demo clean-docker clean-docs clean-build
+# Remove old toolchain build artifacts (core image, SDK toolchain)
+clean-toolchain:
+	$(MAKE) -C ${TQEM_BUILD_TOOLCHAIN_DIR} clean
+
+clean: clean-demo clean-docker clean-docs clean-build clean-toolchain
 
 .PHONY: all prepare \
 	base core core-build core-deploy toolchain \
@@ -119,4 +123,4 @@ clean: clean-demo clean-docker clean-docs clean-build
 	frontend-dev frontend-dev-check \
 	docs \
 	test-all run-aarch64-bash \
-	clean-demo clean-docker clean-docs clean-build clean
+	clean-demo clean-docker clean-docs clean-build clean-toolchain clean
