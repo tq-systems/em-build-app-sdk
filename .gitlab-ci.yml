@@ -57,7 +57,6 @@ Build All:
     GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH"
     GIT_CLEAN_FLAGS: -ffd
     GITLAB_RUNNER_TAG: "tq-em-shell"
-    CLEAN_BUILD: "false"
   # Overwrite some CI/CD variables to enable a local build
   script: >
     env \
