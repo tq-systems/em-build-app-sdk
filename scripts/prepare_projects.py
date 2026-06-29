@@ -24,9 +24,10 @@ BUILD_DIR = "build"
 
 LOCAL_CONFIG = os.path.join("local", CONFIG)
 
-def run(cmd):
+def run(cmd, check=True):
     ''' Run a command and check the return value '''
-    subprocess.run(cmd, shell=True, check=True)
+    result = subprocess.run(cmd, shell=True, check=check)
+    return result.returncode
 
 def update_git_repo(name, info):
     ''' Update a git repository '''
@@ -53,6 +54,9 @@ def update_git_repo(name, info):
 
     run([f"git -C {project_path} fetch --tags --prune origin"])
     run([f"git -C {project_path} checkout {reference}"])
+    # Only pull newest head if on a branch
+    if run(f"git -C {project_path} symbolic-ref -q HEAD", check=False) == 0:
+        run([f"git -C {project_path} pull origin --ff-only"])
 
 # Load config(s)
 if not os.path.isfile(CONFIG):
