@@ -53,13 +53,11 @@ Build All:
     BUILD_BASE_DOCKER_TAG: "latest"
     BUILD_TOOLCHAIN_DOCKER_TAG: "latest"
     LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/tqem/deploy"
-    MAKE_TARGET: "all"
+    MAKE_TARGET: "rebuild"
     GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH"
     GIT_CLEAN_FLAGS: -ffd
     GITLAB_RUNNER_TAG: "tq-em-shell"
     CLEAN_BUILD: "false"
-  # Remove old build artifacts to prevent them from interfering with the new build
-  before_script: make clean
   # Overwrite some CI/CD variables to enable a local build
   script: >
     env \
