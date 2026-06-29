@@ -1,5 +1,1 @@
 ## [{{ version }}]
-### Changed
-- projects.yaml: update versions
-- prepare_projects: pull remote changes
-- prepare_projects: pull only for branches
