@@ -5,9 +5,13 @@ RUN_YOCTO := ${RUN_DOCKER} ${BASE_REGISTRY}/yocto:${BASE_DOCKER_TAG}
 RUN_AARCH64 := ${RUN_DOCKER} ${PUBLIC_TOOLCHAIN_REGISTRY}/aarch64:${PUBLIC_TOOLCHAIN_DOCKER_TAG}
 
 MAKE_DOCS := cd ${TQEM_DOCS_DIR} && $(MAKE)
-MAKE_AARCH64 := $(RUN_AARCH64) $(MAKE_ENV) $(MAKE)
+MAKE_AARCH64 := $(RUN_AARCH64) $(MAKE)
 
-CLEAN_BUILD ?= true
+# Set 'CLEAN_CORE=true' to delete yocto's build cache for incremental builds,
+# particularly as the core build takes a very long time.
+CLEAN_CORE ?= false
+# Set 'CLEAN_BUILD=true' to delete all build directories including all build caches.
+CLEAN_BUILD ?= false
 
 # Use current uid/gid for the docker builds to prevent permission issues
 export DOCKER_UID ?= $(shell id -u)
@@ -25,7 +29,7 @@ all: prepare
 	$(MAKE) open-ui-container-app
 	$(MAKE) demo-bundle
 
-# Rebuild all targets, the core build is kept unless CLEAN_BUILD=true.
+# Rebuild all targets, the core build is kept unless CLEAN_CORE=true.
 rebuild: clean
 	$(MAKE) all
 
@@ -47,30 +51,36 @@ core-build:
 		TQEM_EM_BUILD_REF=${REF}
 
 core-deploy:
-	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} snapshot-deploy
+	$(eval REF := $(shell $(PREPARE_SCRIPT) --ref yocto/em-build))
+	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} snapshot-deploy TQEM_EM_BUILD_REF=${REF}
 
 toolchain:
-	$(MAKE) -C ${TQEM_BUILD_TOOLCHAIN_DIR} all
+	$(eval REF := $(shell $(PREPARE_SCRIPT) --ref yocto/em-build))
+	$(MAKE) -C ${TQEM_BUILD_TOOLCHAIN_DIR} all \
+		TQEM_CORE_TYPE=snapshots EM_BUILD_REF=${REF}
 
 # Currently, certain make targets still need to be executed sequentially to avoid issues
 # during builds that use multiple CPU threads.
 go-demo-app:
 	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo prepare
 	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo all
-	$(eval MAKE_ENV := TQEM_DEPLOYMENT_SUBDIR=$(shell $(PREPARE_SCRIPT) --ref apps/go-demo))
-	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo deploy-snapshot
+	$(eval SUBDIR := $(shell ${PREPARE_SCRIPT} --ref apps/go-demo))
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo deploy-snapshot \
+		TQEM_DEPLOYMENT_SUBDIR=${SUBDIR}
 
 open-ui-container-app:
 	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container prepare
 	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container all
-	$(eval MAKE_ENV := TQEM_DEPLOYMENT_SUBDIR=$(shell $(PREPARE_SCRIPT) --ref apps/open-ui-container))
-	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container deploy-snapshot
+	$(eval SUBDIR := $(shell ${PREPARE_SCRIPT} --ref apps/open-ui-container))
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container deploy-snapshot \
+		TQEM_DEPLOYMENT_SUBDIR=${SUBDIR}
 
 demo-bundle:
 	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo prepare
 	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo all
-	$(eval MAKE_ENV := TQEM_DEPLOYMENT_SUBDIR=$(shell $(PREPARE_SCRIPT) --ref bundles/demo))
-	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo deploy-snapshot
+	$(eval SUBDIR := $(shell ${PREPARE_SCRIPT} --ref bundles/demo))
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo deploy-snapshot \
+		TQEM_DEPLOYMENT_SUBDIR=${SUBDIR}
 
 frontend-dev:
 	./scripts/frontend-dev.sh
@@ -86,41 +96,40 @@ docs:
 	cp ${TQEM_BUILD_DOCS_DIR}/latex/*.pdf ${TQEM_DOCS_ARTIFACTS_DIR}/
 
 # Test
-test-all: clean
-	$(MAKE) all
-
 run-aarch64-bash:
 	$(RUN_AARCH64) bash
 
 # Clean
-clean-demo:
-	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo           clean
-	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container clean
-	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo           clean
-
 clean-docker:
 	docker system prune --force
 
-clean-docs:
-	rm -rf ${TQEM_BUILD_DOCS_DIR}
-
-# Set 'CLEAN_BUILD=false' to retain the build cache for incremental builds,
-# particularly as the core build takes a very long time.
-clean-build:
-ifeq ($(CLEAN_BUILD),true)
-	rm -rf ${TQEM_BUILD_DIR}
+clean-core:
+ifeq ($(CLEAN_CORE),true)
+	rm -rf ${TQEM_BUILD_YOCTO_DIR}/em-build/build
 endif
 
 # Remove old toolchain build artifacts (core image, SDK toolchain)
 clean-toolchain:
 	$(MAKE) -C ${TQEM_BUILD_TOOLCHAIN_DIR} clean
 
-clean: clean-demo clean-docker clean-docs clean-build clean-toolchain
+clean-demo:
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/go-demo           clean
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_APPS_DIR}/open-ui-container clean
+	$(MAKE_AARCH64) -C ${TQEM_BUILD_BUNDLES_DIR}/demo           clean
 
-.PHONY: all prepare \
+clean-docs:
+	rm -rf ${TQEM_BUILD_DOCS_DIR}
+
+clean: clean-docker clean-docs
+ifeq ($(CLEAN_BUILD),true)
+	rm -rf ${TQEM_BUILD_DIR}
+else
+	$(MAKE) clean-core clean-toolchain clean-demo
+endif
+
+.PHONY: all rebuild prepare \
 	base core core-build core-deploy toolchain \
 	go-demo-app open-ui-container-app demo-bundle \
 	frontend-dev frontend-dev-check \
-	docs \
-	test-all run-aarch64-bash \
-	clean-demo clean-docker clean-docs clean-build clean-toolchain clean
+	docs run-aarch64-bash \
+	clean-docker clean-core clean-toolchain clean-demo clean-docs clean
