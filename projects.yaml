@@ -13,7 +13,7 @@ projects:
 
   toolchain:
     url: https://github.com/tq-systems/em-build-toolchain
-    ref: v2.0.8
+    ref: v2.0.9
 
   apps/go-demo:
     url: https://github.com/tq-systems/em-app-go-demo

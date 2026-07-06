@@ -1,1 +1,3 @@
 ## [{{ version }}]
+### Fixed
+- Deployment issues with tagged core and app artifacts
