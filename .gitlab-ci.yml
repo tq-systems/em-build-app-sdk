@@ -57,6 +57,9 @@ Build All:
     GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH"
     GIT_CLEAN_FLAGS: -ffd
     GITLAB_RUNNER_TAG: "tq-em-shell"
+  # Previous artifacts must not distort the current build
+  before_script:
+    - rm -rf ${LOCAL_DEPLOYMENT_PATH}/*
   # Overwrite some CI/CD variables to enable a local build
   script: >
     env \
