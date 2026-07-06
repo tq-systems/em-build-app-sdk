@@ -1,3 +1,7 @@
+## [0.2.2] - 2026-07-06
+### Fixed
+- Deployment issues with tagged core and app artifacts
+
 ## [0.2.1] - 2026-06-29
 ### Changed
 - projects.yaml: update versions
