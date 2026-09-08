@@ -1,3 +1,6 @@
+# Optional local environment overrides
+-include local/environment.mk
+# Default environment settings
 include environment.mk
 
 RUN_DOCKER := ./scripts/docker-run.sh
@@ -38,26 +41,22 @@ prepare:
 	$(PREPARE_SCRIPT)
 
 base:
-	$(MAKE) -C ${TQEM_BUILD_BASE_DIR} all
+	$(MAKE) -C ${TQEM_BUILD_BASE_DIR} all \
+		BUILD_TAG=${BASE_DOCKER_TAG}
 
 core: core-build
 	$(MAKE) core-deploy
 
 core-build:
-	$(eval URL := $(shell $(PREPARE_SCRIPT) --url yocto/em-build))
-	$(eval REF := $(shell $(PREPARE_SCRIPT) --ref yocto/em-build))
-	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} all \
-		TQEM_EM_BUILD_GIT_REPO=${URL} \
-		TQEM_EM_BUILD_REF=${REF}
+	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} all
 
 core-deploy:
-	$(eval REF := $(shell $(PREPARE_SCRIPT) --ref yocto/em-build))
-	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} snapshot-deploy TQEM_EM_BUILD_REF=${REF}
+	$(RUN_YOCTO) $(MAKE) -C ${TQEM_BUILD_YOCTO_DIR} snapshot-deploy
 
 toolchain:
-	$(eval REF := $(shell $(PREPARE_SCRIPT) --ref yocto/em-build))
 	$(MAKE) -C ${TQEM_BUILD_TOOLCHAIN_DIR} all \
-		TQEM_CORE_TYPE=snapshots EM_BUILD_REF=${REF}
+		BUILD_TAG=${PUBLIC_TOOLCHAIN_DOCKER_TAG} \
+		TQEM_CORE_TYPE=snapshots
 
 # Currently, certain make targets still need to be executed sequentially to avoid issues
 # during builds that use multiple CPU threads.
