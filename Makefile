@@ -33,7 +33,9 @@ all: prepare
 	$(MAKE) demo-bundle
 
 # Rebuild all targets, the core build is kept unless CLEAN_CORE=true.
-rebuild: clean
+# A clean command may fail if a docker image does not exist yet.
+rebuild:
+	$(MAKE) clean || true
 	$(MAKE) all
 
 # Build
