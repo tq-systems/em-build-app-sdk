@@ -41,14 +41,37 @@ LOCAL_TOOLCHAIN = local/em/toolchain
 BASE_REGISTRY             ?= ${LOCAL_BASE}
 PUBLIC_TOOLCHAIN_REGISTRY ?= ${LOCAL_TOOLCHAIN}
 
+# Make the docker driver read from the local image store if the local definitions are used.
+ifeq (${BASE_REGISTRY},${LOCAL_BASE})
+ifeq (${PUBLIC_TOOLCHAIN_REGISTRY},${LOCAL_TOOLCHAIN})
+export BUILDX_BUILDER = default
+endif
+endif
+
 # Definition for external build server with an SSH connection
 TQEM_CI_HOSTNAME    ?= external-build
 TQEM_CI_HOME_PATH   ?= /home/tqemci
 TQEM_CI_DESTINATION ?= ${TQEM_CI_HOSTNAME}:${TQEM_CI_HOME_PATH}
 
-# Docker tags
-BASE_DOCKER_TAG ?= latest
-PUBLIC_TOOLCHAIN_DOCKER_TAG ?= latest
+# Docker tags and references
+export BASE_DOCKER_TAG ?= $(shell ${PREPARE_SCRIPT} --ref base)
+export PUBLIC_TOOLCHAIN_DOCKER_TAG ?= $(shell ${PREPARE_SCRIPT} --ref toolchain)
+ifeq (${BASE_DOCKER_TAG},main)
+export BASE_DOCKER_TAG ?= latest
+endif
+ifeq (${PUBLIC_TOOLCHAIN_DOCKER_TAG},main)
+export PUBLIC_TOOLCHAIN_DOCKER_TAG ?= latest
+endif
+
+export CORE_URL ?= $(shell ${PREPARE_SCRIPT} --url yocto/em-build)
+export CORE_REF ?= $(shell ${PREPARE_SCRIPT} --ref yocto/em-build)
+
+# The environment variables of the used projects are not in sync so we need some aliases
+# for the yocto builds:
+export TQEM_EM_BUILD_GIT_REPO = ${CORE_URL}
+export EM_BUILD_REF = ${CORE_REF}
+# for the toolchain:
+export TQEM_EM_BUILD_REF = ${CORE_REF}
 
 # Frontend development
 # Public defaults below; internal hosts override these via /etc/profile.d/toolchain.sh

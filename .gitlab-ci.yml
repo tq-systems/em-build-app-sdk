@@ -50,25 +50,23 @@ Build All:
   # Prevent concurrent build jobs from interfering with each other
   resource_group: ${CI_PROJECT_PATH}-build
   variables:
-    BUILD_BASE_DOCKER_TAG: "latest"
-    BUILD_TOOLCHAIN_DOCKER_TAG: "latest"
     LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/tqem/deploy"
     MAKE_TARGET: "rebuild"
     GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH"
     GIT_CLEAN_FLAGS: -ffd
     GITLAB_RUNNER_TAG: "tq-em-shell"
-  # Previous artifacts must not distort the current build
-  before_script:
-    - rm -rf ${LOCAL_DEPLOYMENT_PATH}/*
-  # Overwrite some CI/CD variables to enable a local build
-  script: >
-    env \
-      BASE_REGISTRY="local/em/base" \
-      BASE_DOCKER_TAG="${BUILD_BASE_DOCKER_TAG}" \
-      PUBLIC_TOOLCHAIN_REGISTRY="local/em/toolchain" \
-      PUBLIC_TOOLCHAIN_DOCKER_TAG="${BUILD_TOOLCHAIN_DOCKER_TAG}" \
-      TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}" \
-      make "${MAKE_TARGET}"
+    LOCAL_MAKE_ENVIRONMENT: |
+      export TQEM_BASE_DEPLOY_PATH     = ${LOCAL_DEPLOYMENT_PATH}
+      export BASE_REGISTRY             = local/em/base
+      export PUBLIC_TOOLCHAIN_REGISTRY = local/em/toolchain
+  # Previous artifacts must not distort the current build and
+  # overwrite some CI/CD variables for the local build
+  before_script: |
+    rm -rf ${LOCAL_DEPLOYMENT_PATH}/*
+    mkdir -p local
+    echo "$LOCAL_MAKE_ENVIRONMENT" > local/environment.mk
+  script:
+    - make "${MAKE_TARGET}"
   artifacts:
     name: $ARTIFACT_REF
     expire_in: 1 week
