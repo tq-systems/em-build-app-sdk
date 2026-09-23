@@ -1,1 +1,3 @@
 ## [{{ version }}]
+### Changed
+- Move to Gitflow workflow with a stable main branch
