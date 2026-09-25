@@ -1,3 +1,13 @@
+## [0.2.2] - 2026-07-06
+### Fixed
+- Deployment issues with tagged core and app artifacts
+
+## [0.2.1] - 2026-06-29
+### Changed
+- projects.yaml: update versions
+- prepare_projects: pull remote changes
+- prepare_projects: pull only for branches
+
 ## [0.2.0] - 2026-05-28
 ### Added
 - frontend-dev make target that drives a local development environment for an app frontend against

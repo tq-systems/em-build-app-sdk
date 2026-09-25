@@ -1,4 +1,3 @@
 ## [{{ version }}]
-### Fixed
-- prepare_projects: pull remote changes
-- prepare_projects: pull only for branches
+### Changed
+- Move to Gitflow workflow with a stable main branch

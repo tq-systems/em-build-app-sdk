@@ -47,28 +47,27 @@ Build All:
   stage: build
   extends:
     - .gitlab-runner-tag
-  # Prevent concurrent build jobs from interfering with each other
-  resource_group: ${CI_PROJECT_PATH}-build
   variables:
-    BUILD_BASE_DOCKER_TAG: "latest"
-    BUILD_TOOLCHAIN_DOCKER_TAG: "latest"
-    LOCAL_DEPLOYMENT_PATH: "/home/tqemci/workspace/tqem/deploy"
     MAKE_TARGET: "rebuild"
-    GIT_CLONE_PATH: "$CI_BUILDS_DIR/$CI_PROJECT_PATH"
+    JOB_SUBDIR: "full"
+    GIT_CLONE_PATH: "${CI_BUILDS_DIR}/${CI_PROJECT_PATH}/${JOB_SUBDIR}"
+    LOCAL_DEPLOYMENT_PATH: "${GIT_CLONE_PATH}/deploy"
     GIT_CLEAN_FLAGS: -ffd
     GITLAB_RUNNER_TAG: "tq-em-shell"
-  # Previous artifacts must not distort the current build
-  before_script:
-    - rm -rf ${LOCAL_DEPLOYMENT_PATH}/*
-  # Overwrite some CI/CD variables to enable a local build
-  script: >
-    env \
-      BASE_REGISTRY="local/em/base" \
-      BASE_DOCKER_TAG="${BUILD_BASE_DOCKER_TAG}" \
-      PUBLIC_TOOLCHAIN_REGISTRY="local/em/toolchain" \
-      PUBLIC_TOOLCHAIN_DOCKER_TAG="${BUILD_TOOLCHAIN_DOCKER_TAG}" \
-      TQEM_BASE_DEPLOY_PATH="${LOCAL_DEPLOYMENT_PATH}" \
-      make "${MAKE_TARGET}"
+    LOCAL_MAKE_ENVIRONMENT: |
+      export TQEM_BASE_DEPLOY_PATH     = ${LOCAL_DEPLOYMENT_PATH}
+      export BASE_REGISTRY             = local/em/base
+      export PUBLIC_TOOLCHAIN_REGISTRY = local/em/toolchain
+  # Prevent concurrent build jobs from interfering with each other
+  resource_group: ${CI_PROJECT_PATH}-${JOB_SUBDIR}
+  # Previous artifacts must not distort the current build and
+  # overwrite some CI/CD variables for the local build
+  before_script: |
+    rm -rf ${LOCAL_DEPLOYMENT_PATH}/*
+    mkdir -p local
+    echo "$LOCAL_MAKE_ENVIRONMENT" > local/environment.mk
+  script:
+    - make "${MAKE_TARGET}"
   artifacts:
     name: $ARTIFACT_REF
     expire_in: 1 week
@@ -76,10 +75,15 @@ Build All:
     paths:
       - build/bundles/demo/deploy/*.raucb
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^release/
+    - if: >
+        $CI_PIPELINE_SOURCE == "merge_request_event"
+        && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
       variables:
         CLEAN_BUILD: "true"
-    - when: always
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      variables:
+        JOB_SUBDIR: "incremental"
 
 Simple Update Test:
   stage: integration
