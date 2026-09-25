@@ -1,3 +1,7 @@
+## [0.2.3] - 2026-09-25
+### Changed
+- Move to Gitflow workflow with a stable main branch
+
 ## [0.2.2] - 2026-07-06
 ### Fixed
 - Deployment issues with tagged core and app artifacts
