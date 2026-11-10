@@ -1,1 +1,3 @@
 ## [{{ version }}]
+### Changed
+- projects.yaml: update base to v3.1.5, the images build with Docker Compose 2.40 and later
